@@ -11,12 +11,14 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") { res.status(200).end(); return; }
 
   // --- 入力 ---
-  // q:        検索クエリ（X検索構文そのまま）。複数ワードはOR連結してから渡す想定。
-  // max:      取得したい件数（合計）。最大500件まで。1リクエスト10〜100件単位でページ送り。
+  // q:        検索クエリ（X検索構文そのまま）。複数ワードはスペース連結のAND想定。
+  // max:      取得したい件数（合計）。5〜500件。
+  //           ※X APIの1リクエスト最小は10件なので、5件指定でも内部的に10件取得し、
+  //             返却時にユーザー指定の件数へ切り出す。
   // excludeReplies: "1"でリプライ除外
   // excludeRetweets: "1"でリツイート除外
   const q = (req.query.q || "").toString().trim();
-  const want = Math.min(Math.max(parseInt(req.query.max, 10) || 50, 10), 500);
+  const want = Math.min(Math.max(parseInt(req.query.max, 10) || 10, 5), 500);
   const excludeReplies  = req.query.excludeReplies  === "1";
   const excludeRetweets = req.query.excludeRetweets === "1";
 
